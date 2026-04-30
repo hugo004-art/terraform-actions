@@ -1,0 +1,23 @@
+name: Terraform Deploy LocalStack
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Iniciar LocalStack
+        run: |
+          docker run -d --name localstack -p 4566:4566 localstack/localstack:latest
+          timeout 180s bash -c 'until curl -s http://127.0.0.1:4566/_localstack/health > /dev/null; do sleep 10; done'
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform Apply
+        run: |
+          terraform init
+          terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+          NO_PROXY: "127.0.0.1,localhost"
