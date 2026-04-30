@@ -15,3 +15,6 @@ provider "aws" {
 resource "aws_s3_bucket" "bucket_validado" {
   bucket = "mi-bucket-con-actions-hugo"
 }
+# Comentario 1
+# Comentario 2
+# Comentario 3
