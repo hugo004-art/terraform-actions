@@ -5,9 +5,7 @@ provider "aws" {
   skip_credentials_validation = true
   skip_metadata_api_check     = true
   skip_requesting_account_id  = true
-  
-  # ESTA LÍNEA ES VITAL: evita que se quede "pensando"
-  s3_use_path_style           = true 
+  s3_use_path_style           = true # <--- ESTO ARREGLA LA TAREA 6
 
   endpoints {
     s3 = "http://127.0.0.1:4566"

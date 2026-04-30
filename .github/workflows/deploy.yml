@@ -6,15 +6,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout código
+        uses: actions/checkout@v4
+
       - name: Iniciar LocalStack
         run: |
-          docker run -d --name localstack -p 4566:4566 localstack/localstack:latest
-          timeout 180s bash -c 'until curl -s http://127.0.0.1:4566/_localstack/health > /dev/null; do sleep 10; done'
-      - uses: hashicorp/setup-terraform@v3
-      - name: Terraform Apply
+          # Usamos la versión 3.0 exacta como debe ser
+          docker run -d --name localstack -p 4566:4566 localstack/localstack:3.0
+          
+          echo "Esperando a LocalStack 3.0 (máximo 3 min)..."
+          # Healthcheck para evitar el Error 124 que vimos en los logs
+          timeout 180s bash -c 'until curl -s http://127.0.0.1:4566/_localstack/health > /dev/null; do echo "Cargando servicios..."; sleep 10; done'
+          echo "¡LocalStack 3.0 detectado y listo!"
+
+      - name: Configurar Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init, Plan & Apply
         run: |
           terraform init
+          terraform plan
           terraform apply -auto-approve
         env:
           AWS_ACCESS_KEY_ID: test
